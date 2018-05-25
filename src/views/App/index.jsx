@@ -15,17 +15,6 @@ const styles = {
     margin: 0,
     padding: 0,
     backgroundColor: "#ffffff"
-  },
-  App: {
-    textAlign: "center"
-  },
-  intro: {
-    fontSize: "large"
-  },
-  lineBreak: {
-    width: "75%",
-    borderTop: "1px solid #333333",
-    margin: "32px auto"
   }
 };
 
@@ -35,7 +24,6 @@ const App = ({ classes }) => (
     <OpponentChoice />
     <HandChoice />
     <ActionHands />
-    <NOSActions />
   </div>
 );
 
