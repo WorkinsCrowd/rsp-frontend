@@ -2,15 +2,25 @@ import React from "react";
 import injectSheet from "react-jss";
 import PropTypes from "prop-types";
 
-const styles = {};
+const styles = {
+  actionBox: {
+    display: "flex",
+    "justify-content": "center"
+  },
+  button: {
+    border: "none",
+    width: "100px",
+    height: "25px"
+  }
+};
 
 const ActionHands = ({ classes }) => (
-  <hend-choice className={classes.header}>
+  <hend-choice>
     <div>
-      <div>
-        <img alt="alt" />
-        <button />
-        <img alt="alt" />
+      <div className={classes.actionBox}>
+        <img alt="Your hand" />
+        <button className={classes.button}>GO</button>
+        <img alt="Opponents hand" />
       </div>
     </div>
   </hend-choice>
