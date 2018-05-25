@@ -2,27 +2,22 @@ import React from "react";
 import injectSheet from "react-jss";
 import PropTypes from "prop-types";
 
-const styles = {
+const styles = {};
 
-};
-
-const OpponentChoice = ({ classes }) => (
+const ActionHands = ({ classes }) => (
   <hend-choice className={classes.header}>
     <div>
       <div>
-        <input type="text" placeholder="your address" />
+        <img alt="alt" />
         <button />
-      </div>
-      <div>
-        <input type="text" placeholder="opponent address" />
-        <button />
+        <img alt="alt" />
       </div>
     </div>
   </hend-choice>
 );
 
-OpponentChoice.propTypes = {
+ActionHands.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default injectSheet(styles)(OpponentChoice);
+export default injectSheet(styles)(ActionHands);

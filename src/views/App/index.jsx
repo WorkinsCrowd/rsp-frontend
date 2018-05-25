@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import Header from "./../../components/Header";
 import HandChoice from "./../../components/HandChoice";
 import OpponentChoice from "./../../components/OpponentChoice";
+import ActionHands from "./../../components/ActionHands";
 import NOSActions from "./../../components/NOSActions";
 
 const styles = {
@@ -33,6 +34,7 @@ const App = ({ classes }) => (
     <Header title="rock scissors paper" />
     <OpponentChoice />
     <HandChoice />
+    <ActionHands />
     <NOSActions />
   </div>
 );
