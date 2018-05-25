@@ -15,7 +15,7 @@ const styles = {
 };
 
 const HandChoice = ({ classes }) => (
-  <hend-choice className={classes.header}>
+  <hand-choice className={classes.header}>
     <div>
       <div>
         <label htmlFor="rock">
@@ -33,7 +33,7 @@ const HandChoice = ({ classes }) => (
         </label>
       </div>
     </div>
-  </hend-choice>
+  </hand-choice>
 );
 
 HandChoice.propTypes = {
