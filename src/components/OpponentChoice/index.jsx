@@ -33,7 +33,7 @@ const OpponentChoice = ({ classes }) => (
     <div className={classes.choices}>
       <div className={classes.inputBox}>
         <input className={classes.input} type="text" placeholder="Your address" />
-        <button className={classes.button}>{this.props.}</button>
+        <button className={classes.button}>confirm</button>
       </div>
       <div className={classes.inputBox}>
         <input className={classes.input} type="text" placeholder="Opponent address" />
