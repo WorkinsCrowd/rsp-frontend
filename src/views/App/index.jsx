@@ -15,6 +15,12 @@ const styles = {
     margin: 0,
     padding: 0,
     backgroundColor: "#ffffff"
+  },
+  "@global button": {
+    backgroundColor: "rgb(255, 202, 44)",
+    border: "none",
+    zIndex: 1,
+    cursor: "pointer"
   }
 };
 

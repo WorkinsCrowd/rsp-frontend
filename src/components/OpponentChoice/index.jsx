@@ -9,19 +9,21 @@ const styles = {
     "align-items": "center"
   },
   input: {
-    width: "350px",
+    width: "400px",
     height: "20px",
-    padding: "5px",
-    border: "none"
+    padding: "10px",
+    border: "none",
+    outline: "none",
+    backgroundColor: "rgb(243,243,243)",
+    color: "rgb(203,203,203)",
+    margin: "5px"
   },
   button: {
     position: "absolute",
-    right: "5px",
-    top: "5px",
-    height: "20px",
-    width: "55px",
-    "z-index": "2",
-    border: "none"
+    right: "10px",
+    top: "10px",
+    height: "30px",
+    width: "60px"
   },
   inputBox: {
     position: "relative"

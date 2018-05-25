@@ -8,9 +8,8 @@ const styles = {
     "justify-content": "center"
   },
   button: {
-    border: "none",
-    width: "100px",
-    height: "25px"
+    width: "110px",
+    height: "35px"
   }
 };
 
