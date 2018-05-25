@@ -1,6 +1,9 @@
 import React from "react";
 import injectSheet from "react-jss";
 import PropTypes from "prop-types";
+import rockImg from "../../assets/rock.jpg"
+import paperImg from "../../assets/paper.jpg"
+import scissorsImg from "../../assets/scissors.jpg"
 
 const styles = {
   header: {
@@ -23,7 +26,11 @@ const styles = {
   pic: {
     width: "75px",
     height: "75px",
-    padding: "5px"
+    padding: "5px",
+    transform: "rotate(90deg)"
+  },
+  picLabel: {
+    cursor: "pointer"
   }
 };
 
@@ -31,20 +38,20 @@ const HandChoice = ({ classes }) => (
   <hand-choice className={classes.header}>
     <div className={classes.handsBox}>
       <div>
-        <label htmlFor="rock">
-          <img className={classes.pic} alt="rock" />
+        <label className={classes.picLabel} htmlFor="rock">
+          <img src={rockImg} style={{ height: "80%" }} className={classes.pic} alt="rock" />
           <input className={classes.radio} id="rock" type="radio" />
         </label>
       </div>
       <div>
-        <label htmlFor="scissors">
-          <img className={classes.pic} alt="scissors" />
+        <label className={classes.picLabel} htmlFor="scissors">
+          <img src={scissorsImg} className={classes.pic} alt="scissors" />
           <input className={classes.radio} id="scissors" type="radio" />
         </label>
       </div>
       <div>
-        <label htmlFor="paper">
-          <img className={classes.pic} alt="paper" />
+        <label className={classes.picLabel} htmlFor="paper">
+          <img src={paperImg} className={classes.pic} alt="paper" />
           <input className={classes.radio} id="paper" type="radio" />
         </label>
       </div>
