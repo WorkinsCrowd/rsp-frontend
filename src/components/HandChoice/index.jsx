@@ -11,25 +11,41 @@ const styles = {
   },
   title: {
     fontSize: "1.5em"
+  },
+  radio: {
+    visibility: "hidden",
+    position: "absolute"
+  },
+  handsBox: {
+    display: "flex",
+    "justify-content": "center"
+  },
+  pic: {
+    width: "75px",
+    height: "75px",
+    padding: "5px"
   }
 };
 
 const HandChoice = ({ classes }) => (
   <hand-choice className={classes.header}>
-    <div>
+    <div className={classes.handsBox}>
       <div>
         <label htmlFor="rock">
-          <input id="rock" type="radio" />
+          <img className={classes.pic} alt="rock" />
+          <input className={classes.radio} id="rock" type="radio" />
         </label>
       </div>
       <div>
         <label htmlFor="scissors">
-          <input id="scissors" type="radio" />
+          <img className={classes.pic} alt="scissors" />
+          <input className={classes.radio} id="scissors" type="radio" />
         </label>
       </div>
       <div>
         <label htmlFor="paper">
-          <input id="paper" type="radio" />
+          <img className={classes.pic} alt="paper" />
+          <input className={classes.radio} id="paper" type="radio" />
         </label>
       </div>
     </div>
