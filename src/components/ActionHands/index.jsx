@@ -116,15 +116,19 @@ class ActionHands extends React.Component {
   render = () => {
     const { classes } = this.props;
 
+    let buttonText = "GO";
+
+    if (!this.props.canStart && !this.props.inProgress) {
+      buttonText = "Choose opponent and hand!";
+    } else if (this.props.inProgress) {
+      buttonText = "Waiting opponent";
+    }
+
     const button = this.props.winner ? (
       <div>{this.props.winner}</div>
     ) : (
       <button className={classes.button} onClick={this.handleGoClick}>
-        {this.props.canStart && !this.props.inProgress
-          ? "GO"
-          : this.props.inProgress
-            ? "Waiting opponent"
-            : "Choose opponent and hand!"}
+        {buttonText}
       </button>
     );
 
