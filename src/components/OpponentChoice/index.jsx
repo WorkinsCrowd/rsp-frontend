@@ -1,9 +1,6 @@
 import React from "react";
 import injectSheet from "react-jss";
 import PropTypes from "prop-types";
-import { nosPropTypes } from "@nosplatform/api-functions/es6";
-
-import { injectNOS } from "../../nos";
 
 const styles = {
   choices: {
@@ -40,27 +37,39 @@ class OpponentChoice extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      playerAddress: "",
       opponent: "",
       opponentButtonText: "confirm",
       opponentEnabled: true
     };
   }
+
   componentDidMount = async () => {
-    await this.setState({ playerAddress: await this.props.nos.getAddress() });
+    if (this.props.opponent !== "") {
+      await this.setState({
+        opponentButtonText: "change",
+        opponentEnabled: false,
+        opponent: this.props.opponent
+      });
+    }
   };
 
-  opponentChangeHandler = async event => {
-    await this.setState({ opponent: event.target.value });
+  changeOpponentHandler = async event => {
+    await this.setState({
+      opponent: event.target.value
+    });
   };
 
-  confirmOpponentHandler = async () => {
+  setOpponent = async () => {
     if (this.state.opponentButtonText === "confirm") {
+      await this.props.chooseOpponent(this.state.opponent);
+
       await this.setState({
         opponentButtonText: "change",
         opponentEnabled: false
       });
     } else {
+      await this.props.chooseOpponent("");
+
       await this.setState({
         opponentButtonText: "confirm",
         opponentEnabled: true
@@ -79,7 +88,7 @@ class OpponentChoice extends React.Component {
               className={classes.input}
               type="text"
               placeholder="Your address"
-              value={this.state.playerAddress}
+              value={this.props.playerAddress}
               disabled
             />
           </div>
@@ -89,10 +98,10 @@ class OpponentChoice extends React.Component {
               type="text"
               placeholder="Opponent address"
               value={this.state.opponent}
-              onChange={this.opponentChangeHandler}
+              onChange={this.changeOpponentHandler}
               disabled={!this.state.opponentEnabled}
             />
-            <button className={classes.button} onClick={this.confirmOpponentHandler}>
+            <button className={classes.button} onClick={this.setOpponent}>
               {this.state.opponentButtonText}
             </button>
           </div>
@@ -103,10 +112,12 @@ class OpponentChoice extends React.Component {
 }
 
 OpponentChoice.propTypes = {
+  playerAddress: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
-  nos: nosPropTypes.isRequired
+  opponent: PropTypes.string.isRequired,
+  chooseOpponent: PropTypes.func.isRequired
 };
 
 OpponentChoice.defaultProps = {};
 
-export default injectNOS(injectSheet(styles)(OpponentChoice));
+export default injectSheet(styles)(OpponentChoice);
