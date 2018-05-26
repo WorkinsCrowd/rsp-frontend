@@ -116,6 +116,18 @@ class ActionHands extends React.Component {
   render = () => {
     const { classes } = this.props;
 
+    const button = this.props.winner ? (
+      <div>{this.props.winner}</div>
+    ) : (
+      <button className={classes.button} onClick={this.handleGoClick}>
+        {this.props.canStart && !this.props.inProgress
+          ? "GO"
+          : this.props.inProgress
+            ? "Waiting opponent"
+            : "Choose opponent and hand!"}
+      </button>
+    );
+
     return (
       <React.Fragment>
         <div>
@@ -125,13 +137,7 @@ class ActionHands extends React.Component {
               alt="Your hand"
               src={this.state.leftHand}
             />
-            <button className={classes.button} onClick={this.handleGoClick}>
-              {this.props.canStart && !this.props.inProgress
-                ? "GO"
-                : this.props.inProgress
-                  ? "Waiting opponent"
-                  : "Choose opponent and hand!"}
-            </button>
+            {button}
             <img
               className={this.state.rightHandClass}
               alt="Opponents hand"
@@ -151,7 +157,8 @@ ActionHands.propTypes = {
   startGame: PropTypes.func.isRequired,
   finished: PropTypes.bool.isRequired,
   playerHand: PropTypes.string.isRequired,
-  opponentHand: PropTypes.string.isRequired
+  opponentHand: PropTypes.string.isRequired,
+  winner: PropTypes.string.isRequired
 };
 
 export default injectSheet(styles)(ActionHands);

@@ -47,7 +47,8 @@ class App extends React.Component {
       inProgress: !!gameId,
       opponentIndex: localStorage.getItem("opponentIndex") || 0,
       finished: false,
-      opponentHand: ""
+      opponentHand: "",
+      winner: ""
     };
 
     if (gameId) {
@@ -153,23 +154,37 @@ class App extends React.Component {
     const gameKey = `game.${this.state.gameId}`;
 
     const interval = setInterval(async () => {
-      const winnerKey = `${gameKey}.answer_hash${this.state.opponentIndex}`;
+      const winnerKey = `${gameKey}.winner`;
 
       const winner = await this.props.nos.GetStorage(contractAddress, winnerKey);
 
-      if (winner !== null) {
-        clearInterval(interval);
-        const opponentAnswer = await this.props.nos.GetStorage(
-          contractAddress,
-          `${gameKey}.answer${this.state.opponentIndex}`
-        );
-
-        this.setState({
-          opponentHand: opponentAnswer,
-          finished: true
-        });
+      if (winner === null) {
+        return;
       }
+      clearInterval(interval);
+      const opponentAnswer = await this.props.nos.GetStorage(
+        contractAddress,
+        `${gameKey}.answer${this.state.opponentIndex}`
+      );
+
+      this.setState({
+        opponentHand: opponentAnswer,
+        winner: this.getWinner(winner),
+        finished: true
+      });
     }, 2000);
+  };
+
+  getWinner = winner => {
+    if (winner === this.state.playerAddress) {
+      return "You win";
+    }
+
+    if (winner === "draw") {
+      return "Draw";
+    }
+
+    return "You lose!!!";
   };
 
   continueGame = () => {
@@ -181,9 +196,7 @@ class App extends React.Component {
       }
     }
   };
-  clearAll = () => {
-
-  }
+  clearAll = () => {};
   render = () => {
     const { classes } = this.props;
 
@@ -208,8 +221,15 @@ class App extends React.Component {
           finished={this.state.finished}
           playerHand={this.state.hand}
           opponentHand={this.state.opponentHand}
+          winner={this.state.winner}
         />
-        <button className={!this.state.finished ? classes.invisible : ''} disabled={!this.state.finished} onClick={this.clearAll()}>Restart</button>
+        <button
+          className={!this.state.finished ? classes.invisible : ""}
+          disabled={!this.state.finished}
+          onClick={this.clearAll()}
+        >
+          Restart
+        </button>
       </div>
     );
   };
