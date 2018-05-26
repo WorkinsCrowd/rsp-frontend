@@ -8,6 +8,7 @@ import scissorsImg from "../../assets/scissors.jpg";
 
 const styles = {
   actionBox: {
+    paddingTop: "20px",
     display: "flex",
     "justify-content": "center",
     alignItems: "center"
@@ -21,14 +22,10 @@ const styles = {
   },
 
   "hand-left-shake": {
-    animation: "shake-left-a 2s linear both infinite",
-    backfaceVisibility: "hidden",
-    perspective: "1000px"
+    animation: "shake-left-a 2s linear both infinite"
   },
   "hand-right-shake": {
-    animation: "shake-right-a 2s linear both infinite",
-    backfaceVisibility: "hidden",
-    perspective: "1000px"
+    animation: "shake-right-a 2s linear both infinite"
   }
 };
 class ActionHands extends React.Component {
