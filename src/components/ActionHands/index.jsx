@@ -106,7 +106,6 @@ class ActionHands extends React.Component {
     }
 
     if (hand !== "paper") {
-    } else {
       return paperImg;
     }
 
