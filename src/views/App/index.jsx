@@ -77,15 +77,20 @@ class App extends React.Component {
       utils.unhex(this.state.opponent),
       utils.unhex(utils.sha256(this.state.hand + salt))
     ]);
-
+    // todo gameid
     const interval = setInterval(async () => {
       const gameId = "zzzzz";
 
       if (gameId) {
         clearInterval(interval);
-
-        await this.setState({ gameId });
+        localStorage.setItem("inProgress", true);
         localStorage.setItem("gameId", gameId);
+
+        this.setState({
+          salt,
+          inProgress: true,
+          gameId
+        });
 
         this.confirmHand();
       }
@@ -186,7 +191,7 @@ class App extends React.Component {
           chooseOpponent={this.setOpponent}
         />
         <HandChoice
-          disabled={this.state.opponent === ""}
+          disabled={this.state.opponent === "" || this.state.inProgress}
           hand={this.state.hand}
           chooseHand={this.setHand}
         />

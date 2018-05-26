@@ -75,7 +75,7 @@ class ActionHands extends React.Component {
   };
 
   handleGoClick = async e => {
-    if (this.props.canStart && !this.props.inProgress) {
+    if (this.props.canStart && !this.props.inProgress && !this.props.finished) {
       await this.setState({
         leftHandClass: this.handsClasses(true, "left"),
         rightHandClass: this.handsClasses(true, "right")
