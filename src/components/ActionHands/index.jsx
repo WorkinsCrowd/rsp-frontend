@@ -87,6 +87,32 @@ class ActionHands extends React.Component {
     }
   };
 
+  componentWillReceiveProps = newProps => {
+    if (newProps.opponentHand) {
+      this.setState({
+        leftHand: this.getHandImage(newProps.playerHand),
+        rightHand: this.getHandImage(newProps.opponentHand)
+      });
+    }
+  };
+
+  getHandImage = hand => {
+    if (hand === "rock") {
+      return rockImg;
+    }
+
+    if (hand === "scissors") {
+      return scissorsImg;
+    }
+
+    if (hand !== "paper") {
+    } else {
+      return paperImg;
+    }
+
+    return rockImg;
+  };
+
   render = () => {
     const { classes } = this.props;
 

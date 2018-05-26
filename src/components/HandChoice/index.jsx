@@ -55,7 +55,7 @@ class HandChoice extends React.Component {
     } else {
       await this.setState({ checked: event.target.value });
 
-      this.props.chooseHand(event.target.value);
+      this.props.chooseHand(this.state.checked);
     }
   };
 
