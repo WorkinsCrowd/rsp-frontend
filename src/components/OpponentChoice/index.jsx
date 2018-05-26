@@ -21,6 +21,9 @@ const styles = {
       color: "rgb(203,203,203)"
     }
   },
+  disabled: {
+    backgroundColor: "white"
+  },
   button: {
     position: "absolute",
     right: "10px",
@@ -85,7 +88,7 @@ class OpponentChoice extends React.Component {
         <div className={classes.choices}>
           <div className={classes.inputBox}>
             <input
-              className={classes.input}
+              className={`${classes.input} ${classes.disabled}`}
               type="text"
               placeholder="Your address"
               value={this.props.playerAddress}
@@ -94,7 +97,7 @@ class OpponentChoice extends React.Component {
           </div>
           <div className={classes.inputBox}>
             <input
-              className={classes.input}
+              className={`${classes.input} ${this.state.opponentEnabled ? "" : classes.disabled}`}
               type="text"
               placeholder="Opponent address"
               value={this.state.opponent}

@@ -65,12 +65,13 @@ class App extends React.Component {
 
   setOpponent = async opponent => {
     localStorage.setItem("opponent", opponent);
-    console.log(localStorage.getItem("opponent"));
+
     await this.setState({ opponent });
   };
 
   setHand = async hand => {
     localStorage.setItem("hand", hand);
+
     await this.setState({ hand });
   };
 
