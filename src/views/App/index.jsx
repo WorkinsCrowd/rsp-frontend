@@ -1,12 +1,12 @@
 import React from "react";
 import injectSheet from "react-jss";
 import PropTypes from "prop-types";
+import { nosPropTypes } from "@nosplatform/api-functions/es6";
 
 import Header from "./../../components/Header";
 import HandChoice from "./../../components/HandChoice";
 import OpponentChoice from "./../../components/OpponentChoice";
 import ActionHands from "./../../components/ActionHands";
-import { nosPropTypes } from "@nosplatform/api-functions/es6";
 
 import { injectNOS } from "../../nos";
 
@@ -47,6 +47,11 @@ class App extends React.Component {
     await this.setState({ opponent });
   };
 
+  setHand = async hand => {
+    localStorage.setItem("hand", hand);
+    await this.setState({ hand });
+  }
+
   render = () => {
     const { classes } = this.props;
 
@@ -58,7 +63,11 @@ class App extends React.Component {
           opponent={this.state.opponent}
           chooseOpponent={this.setOpponent}
         />
-        <HandChoice hand={this.state.hand} />
+        <HandChoice
+          disabled={this.state.opponent === ""}
+          hand={this.state.hand}
+          chooseHand={this.setHand}
+        />
         <ActionHands gameId={this.state.gameId} />
       </div>
     );
