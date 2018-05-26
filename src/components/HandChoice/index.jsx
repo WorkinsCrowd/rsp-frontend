@@ -1,7 +1,7 @@
 import React from "react";
 import injectSheet from "react-jss";
 import PropTypes from "prop-types";
-import rockImg from "../../assets/rock.jpg";
+import rockImg from "../../assets/rock.png";
 import paperImg from "../../assets/paper.jpg";
 import scissorsImg from "../../assets/scissors.jpg";
 

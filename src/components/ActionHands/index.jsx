@@ -2,7 +2,7 @@ import React from "react";
 import injectSheet from "react-jss";
 import PropTypes from "prop-types";
 
-import rockImg from "../../assets/rock.jpg";
+import rockImg from "../../assets/rock.png";
 import paperImg from "../../assets/paper.jpg";
 import scissorsImg from "../../assets/scissors.jpg";
 
@@ -20,12 +20,23 @@ const styles = {
   playerHand: {
     transform: "scaleX(-1)"
   },
-
+  "hand-placeholder": {
+    display: "none"
+  },
+  "hand-placeholder-shake": {
+    visibility: "hidden"
+  },
   "hand-left-shake": {
-    animation: "shake-left-a 2s linear both infinite"
+    animation: "shake-left-a 2s linear both infinite",
+    transformOrigin: "100%"
+    // left: "25%",
+    // position: "absolute"
   },
   "hand-right-shake": {
-    animation: "shake-right-a 2s linear both infinite"
+    animation: "shake-right-a 2s linear both infinite",
+    transformOrigin: "100%"
+    // right: "25%",
+    // position: "absolute"
   }
 };
 class ActionHands extends React.Component {
@@ -35,6 +46,7 @@ class ActionHands extends React.Component {
     this.state = {
       playerChoiceDone: false,
       leftHandClass: this.handsClasses(false, "left"),
+      placeholderClass: this.placeholderClass(false),
       rightHandClass: this.handsClasses(false, "right")
     };
   }
@@ -52,11 +64,25 @@ class ActionHands extends React.Component {
     return applied.join(" ");
   };
 
+  placeholderClass = shake => {
+    const { classes } = this.props;
+    const applied = [];
+
+    if (shake) {
+      applied.push(classes[`hand-placeholder-shake`]);
+    } else {
+      applied.push(classes[`hand-placeholder`]);
+    }
+
+    return applied.join(" ");
+  };
+
   handleGoClick = async e => {
     await this.setState({
       playerChoiceDone: true,
       leftHandClass: this.handsClasses(true, "left"),
-      rightHandClass: this.handsClasses(true, "right")
+      rightHandClass: this.handsClasses(true, "right"),
+      placeholderClass: this.placeholderClass(true)
     });
   };
 
@@ -69,6 +95,11 @@ class ActionHands extends React.Component {
           <div className={classes.actionBox}>
             <img
               className={`${this.state.leftHandClass} ${classes.playerHand}`}
+              alt="Your hand"
+              src={rockImg}
+            />
+            <img
+              className={`${this.state.placeholderClass} ${classes.playerHand}`}
               alt="Your hand"
               src={rockImg}
             />
