@@ -54,7 +54,7 @@ class ActionHands extends React.Component {
     const { classes } = this.props;
     const applied = [];
 
-    if (shake && this.props.finished) {
+    if (shake && !this.props.finished) {
       applied.push(classes[`hand-${hand}-shake`]);
     }
 

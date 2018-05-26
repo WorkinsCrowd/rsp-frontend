@@ -24,6 +24,9 @@ const styles = {
     border: "none",
     zIndex: 1,
     cursor: "pointer"
+  },
+  invisible: {
+    display: "none"
   }
 };
 
@@ -178,7 +181,9 @@ class App extends React.Component {
       }
     }
   };
+  clearAll = () => {
 
+  }
   render = () => {
     const { classes } = this.props;
 
@@ -204,6 +209,7 @@ class App extends React.Component {
           playerHand={this.state.hand}
           opponentHand={this.state.opponentHand}
         />
+        <button className={!this.state.finished ? classes.invisible : ''} disabled={!this.state.finished} onClick={this.clearAll()}>Restart</button>
       </div>
     );
   };
