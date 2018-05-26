@@ -7,6 +7,7 @@ import Header from "./../../components/Header";
 import HandChoice from "./../../components/HandChoice";
 import OpponentChoice from "./../../components/OpponentChoice";
 import ActionHands from "./../../components/ActionHands";
+import Footer from "./../../components/Footer";
 import utils from "../../utils";
 
 import { injectNOS } from "../../nos";
@@ -232,6 +233,7 @@ class App extends React.Component {
         >
           Restart
         </button>
+        <Footer></Footer>
       </div>
     );
   };

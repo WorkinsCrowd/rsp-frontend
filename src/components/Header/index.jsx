@@ -15,19 +15,12 @@ const styles = {
   },
   headerBox: {
     "text-align": "center"
-  },
-  powered: {
-    "text-transform": "uppercase"
   }
 };
 
-const Header = ({ classes, title }) => (
+const Header = ({ classes }) => (
   <header className={classes.header}>
     <div>
-      <div className={classes.headerBox}>
-        <h1 className={classes.title}>{title}</h1>
-        <div className={classes.powered}>powered by nOS - Blockchain</div>
-      </div>
       <SpinningLogo />
     </div>
   </header>

@@ -8,10 +8,7 @@ const styles = {
   logoContainer: {
     display: "block",
     maxWidth: "100px",
-    margin: "32px auto",
-    position: "absolute",
-    top: "0",
-    right: "5%"
+    margin: "32px auto"
   },
   nosLogo: {
     animation: "nOS-logo-spin infinite 3s linear",
