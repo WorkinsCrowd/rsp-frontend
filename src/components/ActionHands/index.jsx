@@ -105,7 +105,7 @@ class ActionHands extends React.Component {
       return scissorsImg;
     }
 
-    if (hand !== "paper") {
+    if (hand === "paper") {
       return paperImg;
     }
 

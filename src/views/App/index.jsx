@@ -196,7 +196,9 @@ class App extends React.Component {
       }
     }
   };
-  clearAll = () => {};
+  clearAll = () => {
+    localStorage.clear();
+  };
   render = () => {
     const { classes } = this.props;
 
