@@ -65,6 +65,7 @@ class App extends React.Component {
 
   setOpponent = async opponent => {
     localStorage.setItem("opponent", opponent);
+    console.log(localStorage.getItem("opponent"));
     await this.setState({ opponent });
   };
 
@@ -229,11 +230,11 @@ class App extends React.Component {
         <button
           className={!this.state.finished ? classes.invisible : ""}
           disabled={!this.state.finished}
-          onClick={this.clearAll()}
+          onClick={this.clearAll}
         >
           Restart
         </button>
-        <Footer></Footer>
+        <Footer />
       </div>
     );
   };
