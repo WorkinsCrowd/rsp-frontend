@@ -14,7 +14,7 @@ const styles = {
     alignItems: "center"
   },
   button: {
-    width: "110px",
+    width: "130px",
     height: "35px"
   },
   playerHand: {
@@ -27,16 +27,12 @@ const styles = {
     visibility: "hidden"
   },
   "hand-left-shake": {
-    animation: "shake-left-a 2s linear both infinite",
-    transformOrigin: "100%"
-    // left: "25%",
-    // position: "absolute"
+    animation: "shake-left-a 2s linear both infinite"
+    // transformOrigin: "100%"
   },
   "hand-right-shake": {
-    animation: "shake-right-a 2s linear both infinite",
-    transformOrigin: "100%"
-    // right: "25%",
-    // position: "absolute"
+    animation: "shake-right-a 2s linear both infinite"
+    // transformOrigin: "100%"
   }
 };
 class ActionHands extends React.Component {
@@ -44,10 +40,11 @@ class ActionHands extends React.Component {
     super(props);
 
     this.state = {
-      playerChoiceDone: false,
       leftHandClass: this.handsClasses(false, "left"),
       placeholderClass: this.placeholderClass(false),
-      rightHandClass: this.handsClasses(false, "right")
+      rightHandClass: this.handsClasses(false, "right"),
+      leftHand: rockImg,
+      rightHand: rockImg
     };
   }
 
@@ -57,7 +54,7 @@ class ActionHands extends React.Component {
     const { classes } = this.props;
     const applied = [];
 
-    if (shake) {
+    if (shake && this.props.finished) {
       applied.push(classes[`hand-${hand}-shake`]);
     }
 
@@ -78,12 +75,16 @@ class ActionHands extends React.Component {
   };
 
   handleGoClick = async e => {
-    await this.setState({
-      playerChoiceDone: true,
-      leftHandClass: this.handsClasses(true, "left"),
-      rightHandClass: this.handsClasses(true, "right"),
-      placeholderClass: this.placeholderClass(true)
-    });
+    if (this.props.canStart && !this.props.inProgress) {
+      await this.setState({
+        leftHandClass: this.handsClasses(true, "left"),
+        rightHandClass: this.handsClasses(true, "right")
+      });
+
+      this.props.startGame();
+    } else {
+      e.preventDefault();
+    }
   };
 
   render = () => {
@@ -96,17 +97,20 @@ class ActionHands extends React.Component {
             <img
               className={`${this.state.leftHandClass} ${classes.playerHand}`}
               alt="Your hand"
-              src={rockImg}
-            />
-            <img
-              className={`${this.state.placeholderClass} ${classes.playerHand}`}
-              alt="Your hand"
-              src={rockImg}
+              src={this.state.leftHand}
             />
             <button className={classes.button} onClick={this.handleGoClick}>
-              GO
+              {this.props.canStart && !this.props.inProgress
+                ? "GO"
+                : this.props.inProgress
+                  ? "Waiting opponent"
+                  : "Choose opponent and hand!"}
             </button>
-            <img className={this.state.rightHandClass} alt="Opponents hand" src={rockImg} />
+            <img
+              className={this.state.rightHandClass}
+              alt="Opponents hand"
+              src={this.state.rightHand}
+            />
           </div>
         </div>
       </React.Fragment>
@@ -115,7 +119,13 @@ class ActionHands extends React.Component {
 }
 
 ActionHands.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  canStart: PropTypes.bool.isRequired,
+  inProgress: PropTypes.bool.isRequired,
+  startGame: PropTypes.func.isRequired,
+  finished: PropTypes.bool.isRequired,
+  playerHand: PropTypes.string.isRequired,
+  opponentHand: PropTypes.string.isRequired
 };
 
 export default injectSheet(styles)(ActionHands);

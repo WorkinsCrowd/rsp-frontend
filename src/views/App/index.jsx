@@ -7,6 +7,7 @@ import Header from "./../../components/Header";
 import HandChoice from "./../../components/HandChoice";
 import OpponentChoice from "./../../components/OpponentChoice";
 import ActionHands from "./../../components/ActionHands";
+import utils from "../../utils";
 
 import { injectNOS } from "../../nos";
 
@@ -26,20 +27,35 @@ const styles = {
   }
 };
 
+const contractAddress = "";
+
 class App extends React.Component {
   constructor(props) {
     super(props);
+    const gameId = localStorage.getItem("gameId") || "";
 
     this.state = {
       playerAddress: "",
       opponent: localStorage.getItem("opponent") || "",
       hand: localStorage.getItem("hand") || "",
-      gameId: localStorage.getItem("gameId") || ""
+      salt: localStorage.getItem("salt") || "",
+      handConfirmed: localStorage.getItem("handConfirmed") || "",
+      gameId,
+      inProgress: !!gameId,
+      opponentIndex: localStorage.getItem("opponentIndex") || 0,
+      finished: false,
+      opponentHand: ""
     };
+
+    if (gameId) {
+      this.continueGame();
+    }
   }
 
   componentDidMount = async () => {
     await this.setState({ playerAddress: await this.props.nos.getAddress() });
+
+    this.continueGame();
   };
 
   setOpponent = async opponent => {
@@ -50,7 +66,113 @@ class App extends React.Component {
   setHand = async hand => {
     localStorage.setItem("hand", hand);
     await this.setState({ hand });
-  }
+  };
+
+  startGame = async () => {
+    const salt = String(~~(Math.random() * 10000000) + 5000000);
+    localStorage.setItem("salt", salt);
+
+    const result = await this.props.nos.invoke(contractAddress, "StartPlay", [
+      utils.unhex(this.state.playerAddress),
+      utils.unhex(this.state.opponent),
+      utils.unhex(utils.sha256(this.state.hand + salt))
+    ]);
+
+    const interval = setInterval(async () => {
+      const gameId = "zzzzz";
+
+      if (gameId) {
+        clearInterval(interval);
+
+        await this.setState({ gameId });
+        localStorage.setItem("gameId", gameId);
+
+        this.confirmHand();
+      }
+    }, 2000);
+  };
+
+  confirmHand = async () => {
+    const gameKey = `game.${this.state.gameId}`;
+    const player1AddressKey = `${gameKey}.player1`;
+
+    const firstPlayerAddress = utils.unhex(
+      await this.props.nos.GetStorage(contractAddress, player1AddressKey)
+    );
+
+    if (firstPlayerAddress === this.state.playerAddress) {
+      await this.setState({
+        opponentIndex: 2
+      });
+    } else {
+      await this.setState({
+        opponentIndex: 1
+      });
+    }
+
+    localStorage.setItem("opponentIndex", this.state.opponentIndex);
+
+    await this.waitOpponentHash();
+
+    const answerResult = await this.props.nos.invoke(contractAddress, "Answer", [
+      utils.unhex(this.state.playerAddress),
+      utils.unhex(this.state.gameId),
+      this.state.hand,
+      this.state.salt
+    ]);
+
+    await this.setState({ handConfirmed: true });
+    localStorage.setItem("handConfirmed", true);
+
+    this.waitWinner();
+  };
+
+  waitOpponentHash = () =>
+    new Promise(resolve => {
+      const hashInterval = setInterval(async () => {
+        const opponentHashKey = `game.${this.state.gameId}.answer_hash${this.state.opponentIndex}`;
+
+        const opponentHash = await this.props.nos.GetStorage(contractAddress, opponentHashKey);
+
+        if (opponentHash !== null) {
+          clearInterval(hashInterval);
+          resolve(true);
+        }
+      }, 2000);
+    });
+
+  waitWinner = () => {
+    const gameKey = `game.${this.state.gameId}`;
+
+    const interval = setInterval(async () => {
+      const winnerKey = `${gameKey}.answer_hash${this.state.opponentIndex}`;
+
+      const winner = await this.props.nos.GetStorage(contractAddress, winnerKey);
+
+      if (winner !== null) {
+        clearInterval(interval);
+        const opponentAnswer = await this.props.nos.GetStorage(
+          contractAddress,
+          `${gameKey}.answer${this.state.opponentIndex}`
+        );
+
+        this.setState({
+          opponentHand: opponentAnswer,
+          finished: true
+        });
+      }
+    }, 2000);
+  };
+
+  continueGame = () => {
+    if (this.state.gameId) {
+      if (this.handConfirmed) {
+        this.waitWinner();
+      } else {
+        this.confirmHand();
+      }
+    }
+  };
 
   render = () => {
     const { classes } = this.props;
@@ -68,7 +190,15 @@ class App extends React.Component {
           hand={this.state.hand}
           chooseHand={this.setHand}
         />
-        <ActionHands gameId={this.state.gameId} />
+        <ActionHands
+          canStart={this.state.hand !== "" && this.state.opponent !== ""}
+          inProgress={this.state.inProgress}
+          gameId={this.state.gameId}
+          startGame={this.startGame}
+          finished={this.state.finished}
+          playerHand={this.state.hand}
+          opponentHand={this.state.opponentHand}
+        />
       </div>
     );
   };
