@@ -219,9 +219,9 @@ export default {
       base = alphabet.length,
       num = [0],
       tmp;
-    for (i = 0; i < string.length; i++) {
+    for (let i = 0; i < string.length; i++) {
       let digit = alphabet.indexOf(string[i]);
-      for (j = 0; j < num.length; j++) {
+      for (let j = 0; j < num.length; j++) {
         tmp = num[j] * base + digit;
         num[j] = tmp & 255;
         digit = tmp >> 8;

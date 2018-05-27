@@ -3,8 +3,8 @@ import injectSheet from "react-jss";
 import PropTypes from "prop-types";
 
 import rockImg from "../../assets/rock.png";
-import paperImg from "../../assets/paper.jpg";
-import scissorsImg from "../../assets/scissors.jpg";
+import paperImg from "../../assets/paper.png";
+import scissorsImg from "../../assets/scissors.png";
 
 const styles = {
   actionBox: {
@@ -40,9 +40,7 @@ class ActionHands extends React.Component {
     super(props);
 
     this.state = {
-      leftHandClass: this.handsClasses(false, "left"),
       placeholderClass: this.placeholderClass(false),
-      rightHandClass: this.handsClasses(false, "right"),
       leftHand: rockImg,
       rightHand: rockImg
     };
@@ -76,11 +74,6 @@ class ActionHands extends React.Component {
 
   handleGoClick = async e => {
     if (this.props.canStart && !this.props.inProgress && !this.props.finished) {
-      await this.setState({
-        leftHandClass: this.handsClasses(true, "left"),
-        rightHandClass: this.handsClasses(true, "right")
-      });
-
       this.props.startGame();
     } else {
       e.preventDefault();
@@ -112,6 +105,20 @@ class ActionHands extends React.Component {
     return rockImg;
   };
 
+  makeHandClass = hand => {
+    if (this.props.inProgress && !this.props.finished) {
+      return this.handsClasses(true, hand);
+    }
+    return this.handsClasses(false, hand);
+  };
+
+  makeHandImg = answer => {
+    if (!this.props.finished) {
+      return this.getHandImage("rock");
+    }
+    return this.getHandImage(answer);
+  };
+
   render = () => {
     const { classes } = this.props;
 
@@ -122,6 +129,12 @@ class ActionHands extends React.Component {
     } else if (this.props.inProgress) {
       buttonText = "Waiting opponent";
     }
+
+    const leftHandClass = this.makeHandClass("left");
+    const rightHandClass = this.makeHandClass("right");
+
+    const leftHandImg = this.makeHandImg(this.props.playerHand);
+    const rightHandImg = this.makeHandImg(this.props.opponentHand);
 
     const button = this.props.winner ? (
       <div>{this.props.winner}</div>
@@ -136,15 +149,15 @@ class ActionHands extends React.Component {
         <div>
           <div className={classes.actionBox}>
             <img
-              className={`${this.state.leftHandClass} ${classes.playerHand}`}
+              className={`${leftHandClass} ${classes.playerHand}`}
               alt="Your hand"
-              src={this.state.leftHand}
+              src={leftHandImg}
             />
             {button}
             <img
-              className={this.state.rightHandClass}
+              className={rightHandClass}
               alt="Opponents hand"
-              src={this.state.rightHand}
+              src={rightHandImg}
             />
           </div>
         </div>

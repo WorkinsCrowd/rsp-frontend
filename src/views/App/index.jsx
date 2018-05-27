@@ -31,7 +31,13 @@ const styles = {
   }
 };
 
-const contractAddress = "";
+const answersMap = {
+  '\x01': 'rock',
+  '\x02': 'scissors',
+  '\x03': 'paper'
+};
+
+const contractAddress = "18bac4e5c9ae191dd09bbe5f2262060524fcfff0";
 
 class App extends React.Component {
   constructor(props) {
@@ -51,10 +57,6 @@ class App extends React.Component {
       opponentHand: "",
       winner: ""
     };
-
-    if (gameId) {
-      this.continueGame();
-    }
   }
 
   componentDidMount = async () => {
@@ -65,7 +67,6 @@ class App extends React.Component {
 
   setOpponent = async opponent => {
     localStorage.setItem("opponent", opponent);
-    console.log(localStorage.getItem("opponent"));
     await this.setState({ opponent });
   };
 
@@ -74,18 +75,24 @@ class App extends React.Component {
     await this.setState({ hand });
   };
 
+  getGameId = async () => {
+    const currentGameKey = utils.neoAddressDecode(this.state.playerAddress) + '.' +
+                           utils.neoAddressDecode(this.state.opponent);
+    return utils.unhex(await this.props.nos.getStorage(contractAddress, currentGameKey));
+  };
+
   startGame = async () => {
     const salt = String(~~(Math.random() * 10000000) + 5000000);
     localStorage.setItem("salt", salt);
 
     const result = await this.props.nos.invoke(contractAddress, "StartPlay", [
-      utils.unhex(this.state.playerAddress),
-      utils.unhex(this.state.opponent),
+      utils.neoAddressDecode(this.state.playerAddress),
+      utils.neoAddressDecode(this.state.opponent),
       utils.unhex(utils.sha256(this.state.hand + salt))
     ]);
-    // todo gameid
+
     const interval = setInterval(async () => {
-      const gameId = "zzzzz";
+      const gameId = await this.getGameId();
 
       if (gameId) {
         clearInterval(interval);
@@ -108,10 +115,10 @@ class App extends React.Component {
     const player1AddressKey = `${gameKey}.player1`;
 
     const firstPlayerAddress = utils.unhex(
-      await this.props.nos.GetStorage(contractAddress, player1AddressKey)
+      await this.props.nos.getStorage(contractAddress, player1AddressKey)
     );
 
-    if (firstPlayerAddress === this.state.playerAddress) {
+    if (firstPlayerAddress === utils.neoAddressDecode(this.state.playerAddress)) {
       await this.setState({
         opponentIndex: 2
       });
@@ -126,8 +133,8 @@ class App extends React.Component {
     await this.waitOpponentHash();
 
     const answerResult = await this.props.nos.invoke(contractAddress, "Answer", [
-      utils.unhex(this.state.playerAddress),
-      utils.unhex(this.state.gameId),
+      utils.neoAddressDecode(this.state.playerAddress),
+      this.state.gameId,
       this.state.hand,
       this.state.salt
     ]);
@@ -143,7 +150,7 @@ class App extends React.Component {
       const hashInterval = setInterval(async () => {
         const opponentHashKey = `game.${this.state.gameId}.answer_hash${this.state.opponentIndex}`;
 
-        const opponentHash = await this.props.nos.GetStorage(contractAddress, opponentHashKey);
+        const opponentHash = await this.props.nos.getStorage(contractAddress, opponentHashKey);
 
         if (opponentHash !== null) {
           clearInterval(hashInterval);
@@ -158,27 +165,34 @@ class App extends React.Component {
     const interval = setInterval(async () => {
       const winnerKey = `${gameKey}.winner`;
 
-      const winner = await this.props.nos.GetStorage(contractAddress, winnerKey);
+      const winner = utils.unhex(await this.props.nos.getStorage(contractAddress, winnerKey));
 
-      if (winner === null) {
+      if (winner === "") {
         return;
       }
-      clearInterval(interval);
-      const opponentAnswer = await this.props.nos.GetStorage(
+      const opponentAnswer = utils.unhex(await this.props.nos.getStorage(
         contractAddress,
         `${gameKey}.answer${this.state.opponentIndex}`
-      );
+      ));
+
+      if (opponentAnswer === "") {
+        return;
+      }
+
+      clearInterval(interval);
 
       this.setState({
-        opponentHand: opponentAnswer,
+        opponentHand: answersMap[opponentAnswer] || 'DQ',
         winner: this.getWinner(winner),
         finished: true
       });
+
+      localStorage.removeItem('gameId');
     }, 2000);
   };
 
   getWinner = winner => {
-    if (winner === this.state.playerAddress) {
+    if (winner === utils.neoAddressDecode(this.state.playerAddress)) {
       return "You win";
     }
 
