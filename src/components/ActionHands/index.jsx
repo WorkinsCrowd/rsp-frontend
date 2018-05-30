@@ -122,27 +122,11 @@ class ActionHands extends React.Component {
   render = () => {
     const { classes } = this.props;
 
-    let buttonText = "GO";
-
-    if (!this.props.canStart && !this.props.inProgress) {
-      buttonText = "Choose opponent and hand!";
-    } else if (this.props.inProgress) {
-      buttonText = "Waiting opponent";
-    }
-
     const leftHandClass = this.makeHandClass("left");
     const rightHandClass = this.makeHandClass("right");
 
     const leftHandImg = this.makeHandImg(this.props.playerHand);
     const rightHandImg = this.makeHandImg(this.props.opponentHand);
-
-    const button = this.props.winner ? (
-      <div>{this.props.winner}</div>
-    ) : (
-      <button className={classes.button} onClick={this.handleGoClick}>
-        {buttonText}
-      </button>
-    );
 
     return (
       <React.Fragment>
@@ -153,12 +137,7 @@ class ActionHands extends React.Component {
               alt="Your hand"
               src={leftHandImg}
             />
-            {button}
-            <img
-              className={rightHandClass}
-              alt="Opponents hand"
-              src={rightHandImg}
-            />
+            <img className={rightHandClass} alt="Opponents hand" src={rightHandImg} />
           </div>
         </div>
       </React.Fragment>
@@ -173,8 +152,7 @@ ActionHands.propTypes = {
   startGame: PropTypes.func.isRequired,
   finished: PropTypes.bool.isRequired,
   playerHand: PropTypes.string.isRequired,
-  opponentHand: PropTypes.string.isRequired,
-  winner: PropTypes.string.isRequired
+  opponentHand: PropTypes.string.isRequired
 };
 
 export default injectSheet(styles)(ActionHands);

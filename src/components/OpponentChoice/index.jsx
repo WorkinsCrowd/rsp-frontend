@@ -37,47 +37,12 @@ const styles = {
 };
 
 class OpponentChoice extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      opponent: "",
-      opponentButtonText: "confirm",
-      opponentEnabled: true
-    };
-  }
-
-  componentDidMount = async () => {
-    if (this.props.opponent !== "") {
-      await this.setState({
-        opponentButtonText: "change",
-        opponentEnabled: false,
-        opponent: this.props.opponent
-      });
-    }
-  };
-
   changeOpponentHandler = async event => {
     await this.setState({
       opponent: event.target.value
     });
-  };
 
-  setOpponent = async () => {
-    if (this.state.opponentButtonText === "confirm") {
-      await this.props.chooseOpponent(this.state.opponent);
-
-      await this.setState({
-        opponentButtonText: "change",
-        opponentEnabled: false
-      });
-    } else {
-      await this.props.chooseOpponent("");
-
-      await this.setState({
-        opponentButtonText: "confirm",
-        opponentEnabled: true
-      });
-    }
+    await this.props.chooseOpponent(this.state.opponent);
   };
 
   render() {
@@ -97,16 +62,13 @@ class OpponentChoice extends React.Component {
           </div>
           <div className={classes.inputBox}>
             <input
-              className={`${classes.input} ${this.state.opponentEnabled ? "" : classes.disabled}`}
+              className={`${classes.input} ${this.props.changeOpponentEnabled ? "" : classes.disabled}`}
               type="text"
-              placeholder="Opponent address"
-              value={this.state.opponent}
+              placeholder="Opponent's NEO address"
+              value={this.props.opponent}
               onChange={this.changeOpponentHandler}
-              disabled={!this.state.opponentEnabled}
+              disabled={!this.props.changeOpponentEnabled}
             />
-            <button className={classes.button} onClick={this.setOpponent}>
-              {this.state.opponentButtonText}
-            </button>
           </div>
         </div>
       </React.Fragment>
@@ -118,7 +80,8 @@ OpponentChoice.propTypes = {
   playerAddress: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   opponent: PropTypes.string.isRequired,
-  chooseOpponent: PropTypes.func.isRequired
+  chooseOpponent: PropTypes.func.isRequired,
+  changeOpponentEnabled: PropTypes.bool.isRequired
 };
 
 OpponentChoice.defaultProps = {};
