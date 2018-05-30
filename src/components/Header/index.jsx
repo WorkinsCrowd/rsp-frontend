@@ -36,7 +36,7 @@ class Header extends React.Component {
     this.setState({ modalIsOpen: true });
   }
 
-  afterOpenModal () {}
+  afterOpenModal() {}
 
   closeModal() {
     this.setState({ modalIsOpen: false });
@@ -60,7 +60,28 @@ class Header extends React.Component {
           onRequestClose={this.closeModal}
         >
           <h2>Rules</h2>
-          <p>Classic rock-scissors-paper game</p>
+          <p>Classic rock-scissors-paper rules:</p>
+          <ul>
+            <li>scissors beats paper</li>
+            <li>paper beats rock</li>
+            <li>rock beats scissors</li>
+          </ul>
+          <h2>Why is it fair game?</h2>
+          <p>
+            Players can not change their answers and cheat. It is possible because we are using
+            2-step gameplay:
+            <ol>
+              <li>
+                In first time players hashes their hands and send it to smart contract, and fixing
+                it in blockchain
+              </li>
+              <li>
+                On second part players send answer and salt for hash-function, so we can compare
+                first hash with new one and if they is not equal we can determine, that player
+                trying to cheat the game
+              </li>
+            </ol>
+          </p>
         </Modal>
       </header>
     );
