@@ -166,7 +166,7 @@ class App extends React.Component {
           this.state.salt
         ]);
       } catch (e) {
-        location.reload();
+        this.continueGame();
         return;
       }
     }
