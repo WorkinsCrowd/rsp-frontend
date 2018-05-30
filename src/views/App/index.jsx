@@ -43,7 +43,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     const gameId = localStorage.getItem("gameId") || "";
-    const opponent = localStorage.getItem("opponent") || ""
+    const opponent = localStorage.getItem("opponent") || "";
 
     this.state = {
       playerAddress: "",
@@ -59,40 +59,44 @@ class App extends React.Component {
       winner: "",
       gameStatus: ""
     };
-
   }
-
 
   componentDidMount = async () => {
     await this.setState({ playerAddress: await this.props.nos.getAddress() });
-    await this.setGameStatus()
 
     this.continueGame();
   };
 
   setGameStatus = () => {
-    let gameStatus = "Enter opponent's NEO address"
+    let gameStatus = "Enter opponent's NEO address";
 
     if (this.state.opponent.length) {
-      gameStatus = "Choose your hand"
+      gameStatus = "Choose your hand";
     }
 
     if (this.state.hand) {
-      gameStatus = "Game in progress, please wait"
+      gameStatus = "Starting the game";
+
+      if (this.state.inProgress) {
+        gameStatus = "Game in progress, please wait";
+      }
     }
 
-    return this.setState(gameStatus)
+    return this.setState({ gameStatus });
   };
-
 
   setOpponent = async opponent => {
     localStorage.setItem("opponent", opponent);
-    await this.setState({ opponent, gameStatus: "Choose your hand" });
+    await this.setState({ opponent });
+
+    this.setGameStatus();
   };
 
   setHand = async hand => {
     localStorage.setItem("hand", hand);
     await this.setState({ hand });
+
+    this.startGame();
   };
 
   getGameId = async () => {
@@ -114,6 +118,9 @@ class App extends React.Component {
         utils.unhex(utils.sha256(this.state.hand + salt))
       ]);
     } catch (e) {
+      this.setState({ hand: "", gameStatus: "Can not start the game" });
+      localStorage.setItem("hand", "");
+
       return;
     }
 
@@ -235,6 +242,8 @@ class App extends React.Component {
   };
 
   continueGame = () => {
+    this.setGameStatus();
+
     if (this.state.gameId) {
       if (this.handConfirmed) {
         this.waitWinner();

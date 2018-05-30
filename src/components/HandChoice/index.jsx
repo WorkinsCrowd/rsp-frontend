@@ -38,24 +38,11 @@ const styles = {
 };
 
 class HandChoice extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      checked: ""
-    };
-  }
-
-  componentDidMount = async () => {
-    await this.setState({ checked: await this.props.hand });
-  };
-
   setHand = async event => {
     if (this.props.disabled === true) {
       event.preventDefault();
     } else {
-      await this.setState({ checked: event.target.value });
-
-      this.props.chooseHand(this.state.checked);
+      this.props.chooseHand(event.target.value);
     }
   };
 
@@ -70,7 +57,7 @@ class HandChoice extends React.Component {
               <img
                 src={rockImg}
                 style={{ height: "80%" }}
-                className={`${classes.pic} ${this.state.checked === "rock" ? classes.checked : ""}`}
+                className={`${classes.pic} ${this.props.hand === "rock" ? classes.checked : ""}`}
                 alt="rock"
               />
               <input
@@ -78,7 +65,6 @@ class HandChoice extends React.Component {
                 id="rock"
                 value="rock"
                 type="radio"
-                checked={this.state.checked === "rock"}
                 onClick={this.setHand}
               />
             </label>
@@ -89,14 +75,13 @@ class HandChoice extends React.Component {
                 src={scissorsImg}
                 alt="scissors"
                 className={`${classes.pic} ${
-                  this.state.checked === "scissors" ? classes.checked : ""
+                  this.props.hand === "scissors" ? classes.checked : ""
                 }`}
               />
               <input
                 className={classes.radio}
                 id="scissors"
                 value="scissors"
-                checked={this.state.checked === "scissors"}
                 type="radio"
                 onClick={this.setHand}
               />
@@ -108,14 +93,13 @@ class HandChoice extends React.Component {
                 src={paperImg}
                 alt="paper"
                 className={`${classes.pic} ${
-                  this.state.checked === "paper" ? classes.checked : ""
+                  this.props.hand === "paper" ? classes.checked : ""
                 }`}
               />
               <input
                 className={classes.radio}
                 id="paper"
                 value="paper"
-                checked={this.state.checked === "paper"}
                 type="radio"
                 onClick={this.setHand}
               />
