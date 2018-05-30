@@ -39,6 +39,10 @@ const styles = {
 
 class HandChoice extends React.Component {
   setHand = async event => {
+    if (this.props.finished) {
+      await this.props.clear()
+    }
+
     if (this.props.disabled === true) {
       event.preventDefault();
     } else {
@@ -115,7 +119,9 @@ HandChoice.propTypes = {
   classes: PropTypes.object.isRequired,
   disabled: PropTypes.bool.isRequired,
   chooseHand: PropTypes.func.isRequired,
-  hand: PropTypes.string.isRequired
+  hand: PropTypes.string.isRequired,
+  finished: PropTypes.bool.isRequired,
+  clear: PropTypes.func.isRequired
 };
 
 export default injectSheet(styles)(HandChoice);

@@ -42,10 +42,14 @@ const contractAddress = "18bac4e5c9ae191dd09bbe5f2262060524fcfff0";
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.state = this.getInitialState();
+  }
+
+  getInitialState = () => {
     const gameId = localStorage.getItem("gameId") || "";
     const opponent = localStorage.getItem("opponent") || "";
 
-    this.state = {
+    return {
       playerAddress: "",
       opponent,
       hand: localStorage.getItem("hand") || "",
@@ -59,7 +63,7 @@ class App extends React.Component {
       winner: "",
       gameStatus: ""
     };
-  }
+  };
 
   componentDidMount = async () => {
     await this.setState({ playerAddress: await this.props.nos.getAddress() });
@@ -130,7 +134,6 @@ class App extends React.Component {
 
     const interval = setInterval(async () => {
       const gameId = await this.getGameId();
-
       if (gameId) {
         clearInterval(interval);
         localStorage.setItem("inProgress", true);
@@ -200,11 +203,13 @@ class App extends React.Component {
     return opponentIndex;
   };
 
-  waitOpponentHash = () => {
-    const opponentIndex = this.getOpponentIndex();
+  waitOpponentHash = async () => {
+    const opponentIndex = await this.getOpponentIndex();
 
     return new Promise(async resolve => {
       const hashInterval = setInterval(async () => {
+        console.log(opponentIndex);
+
         const opponentHashKey = `game.${this.state.gameId}.answer_hash${opponentIndex}`;
 
         const opponentHash = await this.props.nos.getStorage(contractAddress, opponentHashKey);
@@ -275,8 +280,10 @@ class App extends React.Component {
       }
     }
   };
-  clearAll = () => {
+  clearAll = async () => {
     localStorage.clear();
+    await this.setState(this.getInitialState());
+    return this.componentDidMount();
   };
   render = () => {
     const { classes } = this.props;
@@ -294,6 +301,8 @@ class App extends React.Component {
           disabled={this.state.opponent === "" || this.state.inProgress}
           hand={this.state.hand}
           chooseHand={this.setHand}
+          finished={this.state.finished}
+          clear={this.clearAll}
         />
         <div>{this.state.gameStatus}</div>
         <ActionHands
@@ -306,13 +315,6 @@ class App extends React.Component {
           opponentHand={this.state.opponentHand}
           winner={this.state.winner}
         />
-        <button
-          className={!this.state.finished ? classes.invisible : ""}
-          disabled={!this.state.finished}
-          onClick={this.clearAll}
-        >
-          Restart
-        </button>
         <Footer />
       </div>
     );
