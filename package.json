@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Create a dapp on the nOS platform",
   "scripts": {
-    "build": "",
+    "build": "parcel build src/index.html",
     "precommit": "yarn lint",
     "lint": "eslint 'src/**/*.js*'",
     "start": "parcel src/index.html --no-hmr",
