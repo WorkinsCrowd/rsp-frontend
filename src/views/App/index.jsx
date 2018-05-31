@@ -121,14 +121,18 @@ class App extends React.Component {
   };
 
   isOpponentOnline = async opponent => {
-    const response = await (await fetch("http://localhost:1734", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ command: "checkAddress", data: { address: opponent } })
-    })).json();
-    return response.status === 0 && response.message === true;
+    try {
+      const response = await (await fetch("http://localhost:1734", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ command: "checkAddress", data: { address: opponent } })
+      })).json();
+      return response.status === 0 && response.message === true;
+    } catch (e) {
+      return false;
+    }
   };
 
   setOpponent = async opponent => {
