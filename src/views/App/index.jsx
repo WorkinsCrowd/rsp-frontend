@@ -122,7 +122,7 @@ class App extends React.Component {
 
   isOpponentOnline = async opponent => {
     try {
-      const response = await (await fetch("http://localhost:1734", {
+      const response = await (await fetch("/api", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
