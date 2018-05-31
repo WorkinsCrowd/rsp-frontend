@@ -70,6 +70,7 @@ class App extends React.Component {
   componentDidMount = async () => {
     try {
       const playerAddress = await this.props.nos.getAddress();
+
       await this.setState({
         playerAddress,
         opponentOffline: !await this.isOpponentOnline(this.state.opponent)
@@ -82,16 +83,16 @@ class App extends React.Component {
     this.continueGame();
   };
 
-  pingServer = () => {
-    this.pingInterval = setInterval(async () => {
-      await fetch("http://localhost:1734", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ command: "ping", data: { address: this.state.playerAddress } })
-      });
-    }, 60 * 1000);
+  pingServer = async () => {
+    await fetch("/api", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ command: "ping", data: { address: this.state.playerAddress } })
+    });
+
+    this.pingTimeout = setTimeout(this.pingServer.bind(this), 60 * 1000);
   };
 
   setGameStatus = () => {
@@ -122,7 +123,7 @@ class App extends React.Component {
 
   isOpponentOnline = async opponent => {
     try {
-      const response = await (await fetch("/api", {
+      const response = await (await fetch("http://localhost:1734", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
