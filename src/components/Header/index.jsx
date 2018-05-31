@@ -73,13 +73,13 @@ class Header extends React.Component {
           </p>
           <ol>
             <li>
-              In first time players hashes their hands and send it to smart contract, and fixing
-              it in blockchain
+              In first time players hashes their hands and send it to smart contract, and fixing it
+              in blockchain
             </li>
             <li>
-              On second part players send answer and salt for hash-function, so we can compare
-              first hash with new one and if they is not equal we can determine, that player
-              trying to cheat the game
+              On second part players send answer and salt for hash-function, so we can compare first
+              hash with new one and if they is not equal we can determine, that player trying to
+              cheat the game
             </li>
           </ol>
         </Modal>

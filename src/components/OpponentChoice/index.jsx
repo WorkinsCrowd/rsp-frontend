@@ -62,7 +62,9 @@ class OpponentChoice extends React.Component {
           </div>
           <div className={classes.inputBox}>
             <input
-              className={`${classes.input} ${this.props.changeOpponentEnabled ? "" : classes.disabled}`}
+              className={`${classes.input} ${
+                this.props.changeOpponentEnabled ? "" : classes.disabled
+              }`}
               type="text"
               placeholder="Opponent's NEO address"
               value={this.props.opponent}

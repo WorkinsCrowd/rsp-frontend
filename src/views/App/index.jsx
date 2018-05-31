@@ -43,6 +43,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = this.getInitialState();
+    this.pingInterval = null;
   }
 
   getInitialState = () => {
@@ -61,14 +62,36 @@ class App extends React.Component {
       finished: false,
       opponentHand: "",
       winner: "",
-      gameStatus: ""
+      gameStatus: "",
+      opponentOffline: true
     };
   };
 
   componentDidMount = async () => {
-    await this.setState({ playerAddress: await this.props.nos.getAddress() });
+    try {
+      const playerAddress = await this.props.nos.getAddress();
+      await this.setState({
+        playerAddress,
+        opponentOffline: !await this.isOpponentOnline(this.state.opponent)
+      });
+    } catch (e) {
+      return;
+    }
 
+    this.pingServer();
     this.continueGame();
+  };
+
+  pingServer = () => {
+    this.pingInterval = setInterval(async () => {
+      await fetch("http://localhost:1734", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ command: "ping", data: { address: this.state.playerAddress } })
+      });
+    }, 60 * 1000);
   };
 
   setGameStatus = () => {
@@ -76,6 +99,10 @@ class App extends React.Component {
 
     if (this.state.opponent.length) {
       gameStatus = "Choose your hand";
+
+      if (this.state.opponentOffline) {
+        gameStatus = "Opponent offline";
+      }
     }
 
     if (this.state.hand) {
@@ -93,9 +120,20 @@ class App extends React.Component {
     return this.setState({ gameStatus });
   };
 
+  isOpponentOnline = async opponent => {
+    const response = await (await fetch("http://localhost:1734", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ command: "checkAddress", data: { address: opponent } })
+    })).json();
+    return response.status === 0 && response.message === true;
+  };
+
   setOpponent = async opponent => {
     localStorage.setItem("opponent", opponent);
-    await this.setState({ opponent });
+    await this.setState({ opponent, opponentOffline: !await this.isOpponentOnline(opponent) });
 
     this.setGameStatus();
   };
@@ -298,7 +336,9 @@ class App extends React.Component {
           changeOpponentEnabled={!this.state.inProgress}
         />
         <HandChoice
-          disabled={this.state.opponent === "" || this.state.inProgress}
+          disabled={
+            this.state.opponent === "" || this.state.inProgress || this.state.opponentOffline
+          }
           hand={this.state.hand}
           chooseHand={this.setHand}
           finished={this.state.finished}
