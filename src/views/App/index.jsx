@@ -9,6 +9,7 @@ import OpponentChoice from "./../../components/OpponentChoice";
 import ActionHands from "./../../components/ActionHands";
 import Footer from "./../../components/Footer";
 import utils from "../../utils";
+import config from "../../../config";
 
 import { injectNOS } from "../../nos";
 
@@ -85,7 +86,7 @@ class App extends React.Component {
   };
 
   pingServer = async () => {
-    await fetch("/api", {
+    await fetch(config.api, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -124,7 +125,7 @@ class App extends React.Component {
 
   isOpponentOnline = async opponent => {
     try {
-      const response = await (await fetch("/api", {
+      const response = await (await fetch(config.api, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
