@@ -1,4 +1,5 @@
 Rock-Scissors-Paper (http://rsp.fun/) nos distributed application. (https://github.com/nos)
+Rock-Scissors-Paper dApp with fair play conception that can be used for fair deals
 
 You can open it in nos-client and play the game on testnet or, if you want on your privnet.
 

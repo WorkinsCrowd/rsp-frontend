@@ -1,7 +1,7 @@
 {
-  "name": "dapp-starter-kit",
+  "name": "Rock-Scissors-Paper",
   "version": "1.0.0",
-  "description": "Create a dapp on the nOS platform",
+  "description": "Rock-Scissors-Paper dApp with fair play conception that can be used for fair deals",
   "scripts": {
     "build": "parcel build src/index.html",
     "precommit": "yarn lint",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nos/dapp-starter-kit.git"
+    "url": "git+https://github.com/WorkinsCrowd/rsp-frontend.git"
   },
   "license": "MIT",
   "keywords": [
@@ -26,11 +26,11 @@
     "HTML",
     "starter"
   ],
-  "author": "nOS <contact@nos.io>",
+  "author": "Workins Crowd <poniforever@yandex.ru>",
   "bugs": {
-    "url": "https://github.com/nos/dapp-starter-kit/issues"
+    "url": "https://github.com/WorkinsCrowd/rsp-frontend/issues"
   },
-  "homepage": "https://github.com/nos/dapp-starter-kit#readme",
+  "homepage": "https://github.com/WorkinsCrowd/rsp-frontend",
   "dependencies": {
     "@cityofzion/neon-js": "3.6.2",
     "@nosplatform/api-functions": "0.1.3",
