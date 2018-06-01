@@ -60,6 +60,7 @@ class App extends React.Component {
       inProgress: !!gameId,
       opponentIndex: localStorage.getItem("opponentIndex") || 0,
       finished: false,
+      playerHand: localStorage.getItem("playerHand") || "",
       opponentHand: "",
       winner: "",
       gameStatus: "",
@@ -145,8 +146,9 @@ class App extends React.Component {
 
   setHand = async hand => {
     localStorage.setItem("hand", hand);
-    await this.setState({ hand });
+    localStorage.setItem("playerHand", hand);
 
+    await this.setState({ hand, playerHand: hand });
     this.startGame();
   };
 
@@ -251,8 +253,6 @@ class App extends React.Component {
 
     return new Promise(async resolve => {
       const hashInterval = setInterval(async () => {
-        console.log(opponentIndex);
-
         const opponentHashKey = `game.${this.state.gameId}.answer_hash${opponentIndex}`;
 
         const opponentHash = await this.props.nos.getStorage(contractAddress, opponentHashKey);
@@ -287,6 +287,7 @@ class App extends React.Component {
 
       await this.setState({
         opponentHand: answersMap[opponentAnswer] || "DQ",
+        hand: "",
         winner: this.getEndgameStatus(winner),
         finished: true
       });
@@ -323,11 +324,13 @@ class App extends React.Component {
       }
     }
   };
+
   clearAll = async () => {
     localStorage.clear();
     await this.setState(this.getInitialState());
     return this.componentDidMount();
   };
+
   render = () => {
     const { classes } = this.props;
 
@@ -349,14 +352,16 @@ class App extends React.Component {
           finished={this.state.finished}
           clear={this.clearAll}
         />
-        <div>{this.state.gameStatus}</div>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div>{this.state.gameStatus}</div>
+        </div>
         <ActionHands
           canStart={this.state.hand !== "" && this.state.opponent !== ""}
           inProgress={this.state.inProgress}
           gameId={this.state.gameId}
           startGame={this.startGame}
           finished={this.state.finished}
-          playerHand={this.state.hand}
+          playerHand={this.state.playerHand}
           opponentHand={this.state.opponentHand}
           winner={this.state.winner}
         />
