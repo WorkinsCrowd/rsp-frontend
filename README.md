@@ -1,4 +1,4 @@
-Rock-Scissors-Paper (http://rsp.fun/)
+Rock-Scissors-Paper (http://rsp.fun/) nos distributed application. (https://github.com/nos)
 
 You can open it in nos-client and play the game on testnet or, if you want on your privnet.
 
