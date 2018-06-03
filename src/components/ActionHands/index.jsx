@@ -36,17 +36,29 @@ const styles = {
   }
 };
 class ActionHands extends React.Component {
-  constructor(props) {
-    super(props);
+  getHandImage = hand => {
+    if (hand === "rock") {
+      return rockImg;
+    }
 
-    this.state = {
-      placeholderClass: this.placeholderClass(false),
-      leftHand: rockImg,
-      rightHand: rockImg
-    };
-  }
+    if (hand === "scissors") {
+      return scissorsImg;
+    }
 
-  componentDidMount = async () => {};
+    if (hand === "paper") {
+      return paperImg;
+    }
+
+    return rockImg;
+  };
+
+  handleGoClick = async e => {
+    if (this.props.canStart && !this.props.inProgress && !this.props.finished) {
+      this.props.startGame();
+    } else {
+      e.preventDefault();
+    }
+  };
 
   handsClasses = (shake, hand) => {
     const { classes } = this.props;
@@ -70,39 +82,6 @@ class ActionHands extends React.Component {
     }
 
     return applied.join(" ");
-  };
-
-  handleGoClick = async e => {
-    if (this.props.canStart && !this.props.inProgress && !this.props.finished) {
-      this.props.startGame();
-    } else {
-      e.preventDefault();
-    }
-  };
-
-  componentWillReceiveProps = newProps => {
-    if (newProps.opponentHand) {
-      this.setState({
-        leftHand: this.getHandImage(newProps.playerHand),
-        rightHand: this.getHandImage(newProps.opponentHand)
-      });
-    }
-  };
-
-  getHandImage = hand => {
-    if (hand === "rock") {
-      return rockImg;
-    }
-
-    if (hand === "scissors") {
-      return scissorsImg;
-    }
-
-    if (hand === "paper") {
-      return paperImg;
-    }
-
-    return rockImg;
   };
 
   makeHandClass = hand => {

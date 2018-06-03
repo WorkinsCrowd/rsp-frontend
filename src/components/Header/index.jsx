@@ -36,14 +36,12 @@ class Header extends React.Component {
     this.setState({ modalIsOpen: true });
   }
 
-  afterOpenModal() {}
-
   closeModal() {
     this.setState({ modalIsOpen: false });
   }
 
   render = () => {
-    const classes = this.props.classes;
+    const { classes } = this.props;
 
     return (
       <header className={classes.header}>
@@ -89,8 +87,7 @@ class Header extends React.Component {
 }
 
 Header.propTypes = {
-  classes: PropTypes.object.isRequired,
-  title: PropTypes.string.isRequired
+  classes: PropTypes.object.isRequired
 };
 
 export default injectSheet(styles)(Header);

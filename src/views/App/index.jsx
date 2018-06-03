@@ -1,7 +1,7 @@
 import React from "react";
 import injectSheet from "react-jss";
 import PropTypes from "prop-types";
-import { nosPropTypes } from "@nosplatform/api-functions/es6";
+import { react } from "@nosplatform/api-functions";
 
 import Header from "./../../components/Header";
 import HandChoice from "./../../components/HandChoice";
@@ -9,9 +9,9 @@ import OpponentChoice from "./../../components/OpponentChoice";
 import ActionHands from "./../../components/ActionHands";
 import Footer from "./../../components/Footer";
 import utils from "../../utils";
-import config from "../../../config";
+import config from "../../../config.json";
 
-import { injectNOS } from "../../nos";
+const { injectNOS, nosProps } = react.default;
 
 const styles = {
   "@import": "https://fonts.googleapis.com/css?family=Source+Sans+Pro",
@@ -38,7 +38,7 @@ const answersMap = {
   "\x03": "paper"
 };
 
-const contractAddress = "18bac4e5c9ae191dd09bbe5f2262060524fcfff0";
+const sciptHash = "18bac4e5c9ae191dd09bbe5f2262060524fcfff0";
 
 class App extends React.Component {
   constructor(props) {
@@ -85,18 +85,6 @@ class App extends React.Component {
     this.continueGame();
   };
 
-  pingServer = async () => {
-    await fetch(config.api, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ command: "ping", data: { address: this.state.playerAddress } })
-    });
-
-    this.pingTimeout = setTimeout(this.pingServer.bind(this), 60 * 1000);
-  };
-
   setGameStatus = () => {
     let gameStatus = "Enter opponent's NEO address";
 
@@ -123,21 +111,6 @@ class App extends React.Component {
     return this.setState({ gameStatus });
   };
 
-  isOpponentOnline = async opponent => {
-    try {
-      const response = await (await fetch(config.api, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ command: "checkAddress", data: { address: opponent } })
-      })).json();
-      return response.status === 0 && response.message === true;
-    } catch (e) {
-      return false;
-    }
-  };
-
   setOpponent = async opponent => {
     localStorage.setItem("opponent", opponent);
     await this.setState({ opponent, opponentOffline: !await this.isOpponentOnline(opponent) });
@@ -157,20 +130,155 @@ class App extends React.Component {
     const currentGameKey = `${utils.neoAddressDecode(
       this.state.playerAddress
     )}.${utils.neoAddressDecode(this.state.opponent)}`;
-    return utils.unhex(await this.props.nos.getStorage(contractAddress, currentGameKey));
+    return utils.unhex(
+      await this.props.nos.getStorage({ scriptHash: sciptHash, key: currentGameKey })
+    );
+  };
+
+  getGameKey = () => `game.${this.state.gameId}`;
+
+  getWinner = async () =>
+    utils.unhex(
+      await this.props.nos.getStorage({ scriptHash: sciptHash, key: `${this.getGameKey()}.winner` })
+    );
+
+  getEndgameStatus = winner => {
+    if (winner === utils.neoAddressDecode(this.state.playerAddress)) {
+      return "You win";
+    }
+
+    if (winner === "draw") {
+      return "Draw";
+    }
+
+    return "You lose!!!";
+  };
+
+  getOpponentIndex = async () => {
+    let opponentIndex = localStorage.getItem("opponentIndex");
+
+    if (!opponentIndex) {
+      opponentIndex = await this.fetchOpponentIndex();
+    }
+
+    return opponentIndex;
+  };
+
+  confirmHand = async () => {
+    const winner = await this.getWinner();
+
+    if (!winner) {
+      await this.waitOpponentHash();
+      await new Promise(resolve => setTimeout(resolve, 45 * 1000));
+
+      try {
+        await this.props.nos.invoke({
+          scriptHash: sciptHash,
+          operation: "Answer",
+          args: [
+            utils.neoAddressDecode(this.state.playerAddress),
+            this.state.gameId,
+            this.state.hand,
+            this.state.salt
+          ]
+        });
+      } catch (e) {
+        this.continueGame();
+        return;
+      }
+    }
+
+    await this.setState({ handConfirmed: true });
+
+    localStorage.setItem("handConfirmed", true);
+
+    this.waitWinner();
+  };
+
+  fetchOpponentIndex = async () => {
+    const player1AddressKey = `${this.getGameKey()}.player1`;
+    const firstPlayerAddress = utils.unhex(
+      await this.props.nos.getStorage({ scriptHash: sciptHash, key: player1AddressKey })
+    );
+
+    const opponentIndex =
+      firstPlayerAddress === utils.neoAddressDecode(this.state.playerAddress) ? 2 : 1;
+
+    await this.setState({ opponentIndex });
+    localStorage.setItem("opponentIndex", opponentIndex);
+
+    return opponentIndex;
+  };
+
+  waitOpponentHash = async () => {
+    const opponentIndex = await this.getOpponentIndex();
+
+    return new Promise(async resolve => {
+      const hashInterval = setInterval(async () => {
+        const opponentHashKey = `game.${this.state.gameId}.answer_hash${opponentIndex}`;
+
+        const opponentHash = await this.props.nos.getStorage({
+          scriptHash: sciptHash,
+          key: opponentHashKey
+        });
+
+        if (opponentHash !== null) {
+          clearInterval(hashInterval);
+          resolve(true);
+        }
+      }, 2000);
+    });
+  };
+  waitWinner = () => {
+    const interval = setInterval(async () => {
+      const winner = await this.getWinner();
+
+      if (winner === "") {
+        return;
+      }
+
+      const opponentAnswer = utils.unhex(
+        await this.props.nos.getStorage({
+          scriptHash: sciptHash,
+          key: `${this.getGameKey()}.answer${this.state.opponentIndex}`
+        })
+      );
+
+      if (opponentAnswer === "") {
+        return;
+      }
+
+      clearInterval(interval);
+
+      await this.setState({
+        opponentHand: answersMap[opponentAnswer] || "DQ",
+        hand: "",
+        winner: this.getEndgameStatus(winner),
+        finished: true
+      });
+
+      this.setGameStatus();
+
+      localStorage.removeItem("gameId");
+    }, 2000);
   };
 
   startGame = async () => {
+    // eslint-disable-next-line no-bitwise
     const salt = String(~~(Math.random() * 10000000) + 5000000);
 
     localStorage.setItem("salt", salt);
 
     try {
-      await this.props.nos.invoke(contractAddress, "StartPlay", [
-        utils.neoAddressDecode(this.state.playerAddress),
-        utils.neoAddressDecode(this.state.opponent),
-        utils.unhex(utils.sha256(this.state.hand + salt))
-      ]);
+      await this.props.nos.invoke({
+        scriptHash: sciptHash,
+        operation: "StartPlay",
+        args: [
+          utils.neoAddressDecode(this.state.playerAddress),
+          utils.neoAddressDecode(this.state.opponent),
+          utils.unhex(utils.sha256(this.state.hand + salt))
+        ]
+      });
     } catch (e) {
       this.setState({ hand: "", gameStatus: "Can not start the game" });
       localStorage.setItem("hand", "");
@@ -195,130 +303,39 @@ class App extends React.Component {
       }
     }, 2000);
   };
-  getGameKey = () => `game.${this.state.gameId}`;
 
-  confirmHand = async () => {
-    const winner = await this.getWinner();
-
-    if (!winner) {
-      await this.waitOpponentHash();
-      await new Promise(resolve => setTimeout(resolve, 45 * 1000));
-
-      try {
-        await this.props.nos.invoke(contractAddress, "Answer", [
-          utils.neoAddressDecode(this.state.playerAddress),
-          this.state.gameId,
-          this.state.hand,
-          this.state.salt
-        ]);
-      } catch (e) {
-        this.continueGame();
-        return;
-      }
+  isOpponentOnline = async opponent => {
+    try {
+      const response = await (await fetch(config.api, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ command: "checkAddress", data: { address: opponent } })
+      })).json();
+      return response.status === 0 && response.message === true;
+    } catch (e) {
+      return false;
     }
-
-    await this.setState({ handConfirmed: true });
-
-    localStorage.setItem("handConfirmed", true);
-
-    this.waitWinner();
   };
 
-  getOpponentIndex = async () => {
-    let opponentIndex = localStorage.getItem("opponentIndex");
-
-    if (!opponentIndex) {
-      opponentIndex = await this.fetchOpponentIndex();
-    }
-
-    return opponentIndex;
-  };
-
-  fetchOpponentIndex = async () => {
-    const player1AddressKey = `${this.getGameKey()}.player1`;
-    const firstPlayerAddress = utils.unhex(
-      await this.props.nos.getStorage(contractAddress, player1AddressKey)
-    );
-
-    const opponentIndex =
-      firstPlayerAddress === utils.neoAddressDecode(this.state.playerAddress) ? 2 : 1;
-
-    await this.setState({ opponentIndex });
-    localStorage.setItem("opponentIndex", opponentIndex);
-
-    return opponentIndex;
-  };
-
-  waitOpponentHash = async () => {
-    const opponentIndex = await this.getOpponentIndex();
-
-    return new Promise(async resolve => {
-      const hashInterval = setInterval(async () => {
-        const opponentHashKey = `game.${this.state.gameId}.answer_hash${opponentIndex}`;
-
-        const opponentHash = await this.props.nos.getStorage(contractAddress, opponentHashKey);
-
-        if (opponentHash !== null) {
-          clearInterval(hashInterval);
-          resolve(true);
-        }
-      }, 2000);
+  pingServer = async () => {
+    await fetch(config.api, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ command: "ping", data: { address: this.state.playerAddress } })
     });
-  };
-  waitWinner = () => {
-    const interval = setInterval(async () => {
-      const winner = await this.getWinner();
 
-      if (winner === "") {
-        return;
-      }
-
-      const opponentAnswer = utils.unhex(
-        await this.props.nos.getStorage(
-          contractAddress,
-          `${this.getGameKey()}.answer${this.state.opponentIndex}`
-        )
-      );
-
-      if (opponentAnswer === "") {
-        return;
-      }
-
-      clearInterval(interval);
-
-      await this.setState({
-        opponentHand: answersMap[opponentAnswer] || "DQ",
-        hand: "",
-        winner: this.getEndgameStatus(winner),
-        finished: true
-      });
-
-      this.setGameStatus();
-
-      localStorage.removeItem("gameId");
-    }, 2000);
-  };
-
-  getWinner = async () =>
-    utils.unhex(await this.props.nos.getStorage(contractAddress, `${this.getGameKey()}.winner`));
-
-  getEndgameStatus = winner => {
-    if (winner === utils.neoAddressDecode(this.state.playerAddress)) {
-      return "You win";
-    }
-
-    if (winner === "draw") {
-      return "Draw";
-    }
-
-    return "You lose!!!";
+    this.pingTimeout = setTimeout(this.pingServer.bind(this), 60 * 1000);
   };
 
   continueGame = () => {
     this.setGameStatus();
 
     if (this.state.gameId) {
-      if (this.handConfirmed) {
+      if (this.state.handConfirmed) {
         this.waitWinner();
       } else {
         this.confirmHand();
@@ -374,7 +391,7 @@ class App extends React.Component {
 
 App.propTypes = {
   classes: PropTypes.object.isRequired,
-  nos: nosPropTypes.isRequired
+  nos: nosProps.isRequired
 };
 
 export default injectNOS(injectSheet(styles)(App));

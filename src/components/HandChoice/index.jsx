@@ -40,7 +40,7 @@ const styles = {
 class HandChoice extends React.Component {
   setHand = async event => {
     if (this.props.finished) {
-      await this.props.clear()
+      await this.props.clear();
     }
 
     if (this.props.disabled === true) {
@@ -96,9 +96,7 @@ class HandChoice extends React.Component {
               <img
                 src={paperImg}
                 alt="paper"
-                className={`${classes.pic} ${
-                  this.props.hand === "paper" ? classes.checked : ""
-                }`}
+                className={`${classes.pic} ${this.props.hand === "paper" ? classes.checked : ""}`}
               />
               <input
                 className={classes.radio}
