@@ -28,7 +28,6 @@ class Header extends React.Component {
     };
 
     this.openModal = this.openModal.bind(this);
-    this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
   }
 
@@ -52,11 +51,7 @@ class Header extends React.Component {
           <SpinningLogo />
         </div>
 
-        <Modal
-          isOpen={this.state.modalIsOpen}
-          onAfterOpen={this.afterOpenModal}
-          onRequestClose={this.closeModal}
-        >
+        <Modal isOpen={this.state.modalIsOpen} onRequestClose={this.closeModal}>
           <h2>Rules</h2>
           <p>Classic rock-scissors-paper rules:</p>
           <ul>
