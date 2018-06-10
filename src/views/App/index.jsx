@@ -45,6 +45,7 @@ class App extends React.Component {
     super(props);
     this.state = this.getInitialState();
     this.pingInterval = null;
+    this.pingOpponentInterval = null;
   }
 
   getInitialState = () => {
@@ -113,7 +114,10 @@ class App extends React.Component {
 
   setOpponent = async opponent => {
     localStorage.setItem("opponent", opponent);
-    await this.setState({ opponent, opponentOffline: !await this.isOpponentOnline(opponent) });
+
+    await this.setState({ opponent, opponentOffline: true });
+
+    this.pingOpponentInterval = setInterval(this.pingOpponent, 10 * 1000);
 
     this.setGameStatus();
   };
@@ -162,6 +166,16 @@ class App extends React.Component {
     }
 
     return opponentIndex;
+  };
+
+  pingOpponent = async () => {
+    if (await this.isOpponentOnline(this.state.opponent)) {
+      clearInterval(this.pingOpponentInterval);
+
+      await this.setState({ opponentOffline: false });
+
+      this.setGameStatus();
+    }
   };
 
   confirmHand = async () => {
