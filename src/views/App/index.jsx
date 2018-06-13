@@ -82,7 +82,6 @@ class App extends React.Component {
     } catch (e) {
       return;
     }
-
     this.pingServer();
     this.continueGame();
   };
@@ -314,17 +313,20 @@ class App extends React.Component {
       return;
     }
 
+    localStorage.setItem("inProgress", true);
+    this.setState({
+      inProgress: true
+    });
+
     const interval = setInterval(async () => {
       try {
         const gameId = await this.getGameId();
 
         clearInterval(interval);
-        localStorage.setItem("inProgress", true);
         localStorage.setItem("gameId", gameId);
 
         this.setState({
           salt,
-          inProgress: true,
           gameId
         });
 
