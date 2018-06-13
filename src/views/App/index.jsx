@@ -146,15 +146,13 @@ class App extends React.Component {
 
   getWinner = async () => {
     try {
-      return utils.unhex(
-        await this.props.nos.getStorage({
-          scriptHash,
-          key: `${this.getGameKey()}.winner`
-        })
-      );
+      return await this.props.nos.getStorage({
+        scriptHash,
+        key: `${this.getGameKey()}.winner`
+      });
     } catch (e) {
       console.error(e);
-      return false;
+      return "";
     }
   };
 
@@ -227,9 +225,10 @@ class App extends React.Component {
   fetchOpponentIndex = async () => {
     const player1AddressKey = `${this.getGameKey()}.player1`;
 
-    const firstPlayerAddress = utils.unhex(
-      await this.props.nos.getStorage({ scriptHash, key: player1AddressKey })
-    );
+    const firstPlayerAddress = await this.props.nos.getStorage({
+      scriptHash,
+      key: player1AddressKey
+    });
 
     const opponentIndex =
       firstPlayerAddress === utils.neoAddressDecode(this.state.playerAddress) ? 2 : 1;
@@ -268,12 +267,10 @@ class App extends React.Component {
         return;
       }
 
-      const opponentAnswer = utils.unhex(
-        await this.props.nos.getStorage({
-          scriptHash,
-          key: `${this.getGameKey()}.answer${this.state.opponentIndex}`
-        })
-      );
+      const opponentAnswer = await this.props.nos.getStorage({
+        scriptHash,
+        key: `${this.getGameKey()}.answer${this.state.opponentIndex}`
+      });
 
       if (opponentAnswer === "") {
         return;
