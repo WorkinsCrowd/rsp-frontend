@@ -38,11 +38,12 @@ const answersMap = {
   "\x03": "paper"
 };
 
-const sciptHash = "18bac4e5c9ae191dd09bbe5f2262060524fcfff0";
+const scriptHash = "bcf1a860e918d87b704f8d4cb5812636226086bf";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = this.getInitialState();
     this.pingInterval = null;
     this.pingOpponentTimeout = null;
@@ -133,21 +134,29 @@ class App extends React.Component {
     this.startGame();
   };
 
-  getGameId = async () => {
+  getGameId = () => {
     const currentGameKey = `${utils.neoAddressDecode(
       this.state.playerAddress
     )}.${utils.neoAddressDecode(this.state.opponent)}`;
-    return utils.unhex(
-      await this.props.nos.getStorage({ scriptHash: sciptHash, key: currentGameKey })
-    );
+
+    return this.props.nos.getStorage({ scriptHash, key: currentGameKey });
   };
 
   getGameKey = () => `game.${this.state.gameId}`;
 
-  getWinner = async () =>
-    utils.unhex(
-      await this.props.nos.getStorage({ scriptHash: sciptHash, key: `${this.getGameKey()}.winner` })
-    );
+  getWinner = async () => {
+    try {
+      return utils.unhex(
+        await this.props.nos.getStorage({
+          scriptHash,
+          key: `${this.getGameKey()}.winner`
+        })
+      );
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  };
 
   getEndgameStatus = winner => {
     if (winner === utils.neoAddressDecode(this.state.playerAddress)) {
@@ -193,7 +202,7 @@ class App extends React.Component {
 
       try {
         await this.props.nos.invoke({
-          scriptHash: sciptHash,
+          scriptHash,
           operation: "Answer",
           args: [
             utils.neoAddressDecode(this.state.playerAddress),
@@ -217,8 +226,9 @@ class App extends React.Component {
 
   fetchOpponentIndex = async () => {
     const player1AddressKey = `${this.getGameKey()}.player1`;
+
     const firstPlayerAddress = utils.unhex(
-      await this.props.nos.getStorage({ scriptHash: sciptHash, key: player1AddressKey })
+      await this.props.nos.getStorage({ scriptHash, key: player1AddressKey })
     );
 
     const opponentIndex =
@@ -230,17 +240,19 @@ class App extends React.Component {
     return opponentIndex;
   };
 
-  waitOpponentHash = async () => {
-    const opponentIndex = await this.getOpponentIndex();
-
-    return new Promise(async resolve => {
+  waitOpponentHash = async () =>
+    new Promise(async resolve => {
       const hashInterval = setInterval(async () => {
+        const opponentIndex = await this.getOpponentIndex();
+
         const opponentHashKey = `game.${this.state.gameId}.answer_hash${opponentIndex}`;
 
-        const opponentHash = await this.props.nos.getStorage({
-          scriptHash: sciptHash,
-          key: opponentHashKey
-        });
+        const opponentHash = await this.props.nos
+          .getStorage({
+            scriptHash,
+            key: opponentHashKey
+          })
+          .catch(e => console.error("Get opponent hash error:", e));
 
         if (opponentHash !== null) {
           clearInterval(hashInterval);
@@ -248,7 +260,6 @@ class App extends React.Component {
         }
       }, 2000);
     });
-  };
   waitWinner = () => {
     const interval = setInterval(async () => {
       const winner = await this.getWinner();
@@ -259,7 +270,7 @@ class App extends React.Component {
 
       const opponentAnswer = utils.unhex(
         await this.props.nos.getStorage({
-          scriptHash: sciptHash,
+          scriptHash,
           key: `${this.getGameKey()}.answer${this.state.opponentIndex}`
         })
       );
@@ -291,7 +302,7 @@ class App extends React.Component {
 
     try {
       await this.props.nos.invoke({
-        scriptHash: sciptHash,
+        scriptHash,
         operation: "StartPlay",
         args: [
           utils.neoAddressDecode(this.state.playerAddress),
@@ -307,8 +318,9 @@ class App extends React.Component {
     }
 
     const interval = setInterval(async () => {
-      const gameId = await this.getGameId();
-      if (gameId) {
+      try {
+        const gameId = await this.getGameId();
+
         clearInterval(interval);
         localStorage.setItem("inProgress", true);
         localStorage.setItem("gameId", gameId);
@@ -320,6 +332,8 @@ class App extends React.Component {
         });
 
         this.confirmHand();
+      } catch (e) {
+        console.error("Get game id error:", e);
       }
     }, 2000);
   };
