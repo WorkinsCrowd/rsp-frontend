@@ -241,20 +241,24 @@ class App extends React.Component {
   waitOpponentHash = async () =>
     new Promise(async resolve => {
       const hashInterval = setInterval(async () => {
-        const opponentIndex = await this.getOpponentIndex();
+        try {
+          const opponentIndex = await this.getOpponentIndex();
 
-        const opponentHashKey = `game.${this.state.gameId}.answer_hash${opponentIndex}`;
+          const opponentHashKey = `game.${this.state.gameId}.answer_hash${opponentIndex}`;
 
-        const opponentHash = await this.props.nos
-          .getStorage({
-            scriptHash,
-            key: opponentHashKey
-          })
-          .catch(e => console.error("Get opponent hash error:", e));
+          const opponentHash = await this.props.nos
+            .getStorage({
+              scriptHash,
+              key: opponentHashKey
+            })
+            .catch(e => console.error("Get opponent hash error:", e));
 
-        if (opponentHash !== null) {
-          clearInterval(hashInterval);
-          resolve(true);
+          if (opponentHash !== null) {
+            clearInterval(hashInterval);
+            resolve(true);
+          }
+        } catch (e) {
+          console.error("Wait opponent hash error:", e);
         }
       }, 2000);
     });
@@ -266,27 +270,27 @@ class App extends React.Component {
         return;
       }
 
-      const opponentAnswer = await this.props.nos.getStorage({
-        scriptHash,
-        key: `${this.getGameKey()}.answer${this.state.opponentIndex}`
-      });
+      try {
+        const opponentAnswer = await this.props.nos.getStorage({
+          scriptHash,
+          key: `${this.getGameKey()}.answer${this.state.opponentIndex}`
+        });
 
-      if (opponentAnswer === "") {
-        return;
+        clearInterval(interval);
+
+        await this.setState({
+          opponentHand: answersMap[opponentAnswer] || "DQ",
+          hand: "",
+          winner: this.getEndgameStatus(winner),
+          finished: true
+        });
+
+        this.setGameStatus();
+
+        localStorage.removeItem("gameId");
+      } catch (e) {
+        console.error("wait winner error:", e);
       }
-
-      clearInterval(interval);
-
-      await this.setState({
-        opponentHand: answersMap[opponentAnswer] || "DQ",
-        hand: "",
-        winner: this.getEndgameStatus(winner),
-        finished: true
-      });
-
-      this.setGameStatus();
-
-      localStorage.removeItem("gameId");
     }, 2000);
   };
 
@@ -307,6 +311,7 @@ class App extends React.Component {
         ]
       });
     } catch (e) {
+      console.log(e);
       this.setState({ hand: "", gameStatus: "Can not start the game" });
       localStorage.setItem("hand", "");
 
@@ -317,6 +322,8 @@ class App extends React.Component {
     this.setState({
       inProgress: true
     });
+
+    this.setGameStatus();
 
     const interval = setInterval(async () => {
       try {
