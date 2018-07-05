@@ -4,7 +4,7 @@
   "description": "Rock-Scissors-Paper dApp with fair play conception that can be used for fair deals",
   "scripts": {
     "build": "parcel build src/index.html",
-    "predeploy": "parcel build src/index.html",
+    "predeploy": "parcel build src/index.html --public-url https://workinscrowd.github.io/rsp-frontend/",
     "deploy": "gh-pages -d dist",
     "precommit": "yarn lint",
     "lint": "eslint 'src/**/*.js*'",
