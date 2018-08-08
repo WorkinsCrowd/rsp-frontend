@@ -117,10 +117,9 @@ class App extends React.Component {
 
     await this.setState({ opponent, opponentOffline: true });
 
-    if (this.pingOpponentTimeout === null) {
-      this.pingOpponentTimeout = 1;
-      this.pingOpponent();
-    }
+    clearTimeout(this.pingOpponentTimeout);
+    this.pingOpponentTimeout = 1;
+    this.pingOpponent();
 
     this.setGameStatus();
   };
@@ -178,16 +177,12 @@ class App extends React.Component {
   };
 
   pingOpponent = async () => {
-    if (await this.isOpponentOnline(this.state.opponent)) {
-      clearTimeout(this.pingOpponentTimeout);
-      this.pingOpponentTimeout = null;
+    const opponentOnline = await this.isOpponentOnline(this.state.opponent);
 
-      await this.setState({ opponentOffline: false });
+    await this.setState({ opponentOffline: !opponentOnline });
+    this.setGameStatus();
 
-      this.setGameStatus();
-    } else {
-      this.pingOpponentTimeout = setTimeout(this.pingOpponent.bind(this), 2.5 * 1000);
-    }
+    this.pingOpponentTimeout = setTimeout(this.pingOpponent.bind(this), 2.5 * 1000);
   };
 
   confirmHand = async () => {
