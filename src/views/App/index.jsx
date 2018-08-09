@@ -190,7 +190,8 @@ class App extends React.Component {
 
     if (!winner) {
       await this.waitOpponentHash();
-      await new Promise(resolve => setTimeout(resolve, 45 * 1000));
+      // for localNet is better to use it
+      // await new Promise(resolve => setTimeout(resolve, 45 * 1000));
 
       try {
         await this.props.nos.invoke({
